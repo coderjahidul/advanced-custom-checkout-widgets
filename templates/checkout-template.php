@@ -11,27 +11,60 @@ if (!class_exists('WooCommerce')) {
 $checkout = WC()->checkout();
 
 // Handle Pre-selected Products
-if (!empty($preselected_product_ids) && is_array($preselected_product_ids)) {
-    $cart = WC()->cart;
-    if ($cart) {
-        $cart_contents = $cart->get_cart();
-        $cart_product_ids = array_column($cart_contents, 'product_id');
+if (!empty($preselected_product_ids) && is_array($preselected_product_ids) && !is_admin()) {
+    // Ensure WooCommerce session is started
+    if (WC()->session && !WC()->session->has_session()) {
+        WC()->session->set_customer_session_cookie(true);
+    }
 
+    $cart = WC()->cart;
+
+    // Ensure cart is initialized
+    if (is_null($cart)) {
+        wc_load_cart();
+        $cart = WC()->cart;
+    }
+
+    if ($cart) {
         $added_new = false;
+
         foreach ($preselected_product_ids as $pre_id) {
             $pre_id = absint($pre_id);
-            if ($pre_id > 0 && !in_array($pre_id, $cart_product_ids)) {
-                $cart->add_to_cart($pre_id);
-                $added_new = true;
+            if ($pre_id <= 0)
+                continue;
+
+            // Check if product or variation is already in cart
+            $in_cart = false;
+            foreach ($cart->get_cart() as $cart_item) {
+                if ($cart_item['product_id'] == $pre_id || $cart_item['variation_id'] == $pre_id) {
+                    $in_cart = true;
+                    break;
+                }
+            }
+
+            if (!$in_cart) {
+                $product = wc_get_product($pre_id);
+                if ($product && $product->is_purchasable() && $product->is_in_stock()) {
+                    if ($product->is_type('variation')) {
+                        // If it's a variation, add it correctly
+                        $cart->add_to_cart($product->get_parent_id(), 1, $pre_id);
+                    } elseif ($product->is_type('simple')) {
+                        // If it's a simple product, add it normally
+                        $cart->add_to_cart($pre_id);
+                    }
+                    // Note: 'variable' products (parents) cannot be added directly without a variation ID
+                    $added_new = true;
+                }
             }
         }
 
-        // If we added preselected products that weren't in the cart, recalculate totals
+        // If we added products, recalculate totals to ensure order review is accurate
         if ($added_new) {
             $cart->calculate_totals();
         }
     }
 }
+
 
 // Output notices
 woocommerce_output_all_notices();

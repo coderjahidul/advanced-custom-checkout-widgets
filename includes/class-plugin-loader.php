@@ -89,6 +89,11 @@ class Advanced_Checkout_Loader
         wp_register_style('advanced-checkout-style', ADVANCED_CHECKOUT_URL . 'assets/css/checkout.css', [], ADVANCED_CHECKOUT_VERSION);
         wp_register_script('advanced-checkout-script', ADVANCED_CHECKOUT_URL . 'assets/js/checkout.js', ['jquery', 'wc-checkout'], ADVANCED_CHECKOUT_VERSION, true);
 
+        // Ensure WooCommerce session is started before generating nonce
+        if (WC()->session && !WC()->session->has_session()) {
+            WC()->session->set_customer_session_cookie(true);
+        }
+
         // Localize script for AJAX
         wp_localize_script('advanced-checkout-script', 'adv_checkout_obj', [
             'ajax_url' => admin_url('admin-ajax.php'),

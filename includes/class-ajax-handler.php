@@ -46,6 +46,11 @@ class Advanced_Checkout_Ajax
      */
     public function add_to_cart()
     {
+        // Ensure session is started for new users
+        if (WC()->session && !WC()->session->has_session()) {
+            WC()->session->set_customer_session_cookie(true);
+        }
+
         check_ajax_referer('adv_checkout_nonce', 'nonce');
 
         $product_id = apply_filters('woocommerce_add_to_cart_product_id', absint($_POST['product_id']));

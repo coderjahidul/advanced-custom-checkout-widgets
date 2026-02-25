@@ -3,11 +3,22 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+/**
+ * Main Loader Class
+ * 
+ * Responsible for initializing the plugin, registering Elementor widgets,
+ * and enqueuing frontend assets.
+ */
 class Advanced_Checkout_Loader
 {
 
     private static $_instance = null;
 
+    /**
+     * Singleton instance of the class
+     * 
+     * @return Advanced_Checkout_Loader
+     */
     public static function instance()
     {
         if (is_null(self::$_instance)) {
@@ -16,6 +27,9 @@ class Advanced_Checkout_Loader
         return self::$_instance;
     }
 
+    /**
+     * Constructor
+     */
     private function __construct()
     {
         // Load dependencies
@@ -30,11 +44,19 @@ class Advanced_Checkout_Loader
         Advanced_Checkout_Ajax::instance();
     }
 
+    /**
+     * Include dependency files
+     */
     private function includes()
     {
         require_once ADVANCED_CHECKOUT_PATH . 'includes/class-ajax-handler.php';
     }
 
+    /**
+     * Register Elementor Category
+     * 
+     * @param \Elementor\Elements_Manager $elements_manager
+     */
     public function register_category($elements_manager)
     {
         $elements_manager->add_category(
@@ -46,12 +68,20 @@ class Advanced_Checkout_Loader
         );
     }
 
+    /**
+     * Register Elementor Widget
+     * 
+     * @param \Elementor\Widgets_Manager $widgets_manager
+     */
     public function register_widgets($widgets_manager)
     {
         require_once ADVANCED_CHECKOUT_PATH . 'widgets/class-checkout-widget.php';
         $widgets_manager->register(new \Elementor_Advanced_Checkout_Widget());
     }
 
+    /**
+     * Enqueue frontend scripts and styles
+     */
     public function enqueue_scripts()
     {
         // Theme style

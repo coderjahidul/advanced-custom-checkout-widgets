@@ -1,11 +1,15 @@
 <?php
 /**
  * Plugin Name: Advanced Custom Checkout Widgets
+ * Plugin URI: https://github.com/coderjahidul/advanced-custom-checkout-widgets
  * Description: Build an advanced custom checkout plugin for WooCommerce that works with Elementor. Support single/multiple product selection, AJAX add-to-cart system, dynamic shipping loading, and modern UI.
  * Version: 1.0.6
  * Author: Grocoder Software Solutions
  * Author URI: https://www.facebook.com/grocoder
  * Text Domain: advanced-checkout
+ * Domain Path: /languages
+ * 
+ * @package AdvancedCheckout
  */
 
 if (!defined('ABSPATH')) {

@@ -3,11 +3,21 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+/**
+ * AJAX Handler Class
+ * 
+ * Manages all AJAX requests and specific WooCommerce checkout filter logic.
+ */
 class Advanced_Checkout_Ajax
 {
 
     private static $_instance = null;
 
+    /**
+     * Singleton instance of the class
+     * 
+     * @return Advanced_Checkout_Ajax
+     */
     public static function instance()
     {
         if (is_null(self::$_instance)) {
@@ -16,6 +26,9 @@ class Advanced_Checkout_Ajax
         return self::$_instance;
     }
 
+    /**
+     * Constructor
+     */
     private function __construct()
     {
         add_action('wp_ajax_adv_add_to_cart', [$this, 'add_to_cart']);
@@ -25,6 +38,12 @@ class Advanced_Checkout_Ajax
         add_filter('woocommerce_available_payment_gateways', [$this, 'filter_gateways']);
     }
 
+    /**
+     * AJAX handler to add product to cart
+     * 
+     * Validates nonce and product data before adding to WooCommerce cart.
+     * Returns refreshed fragments upon success.
+     */
     public function add_to_cart()
     {
         check_ajax_referer('adv_checkout_nonce', 'nonce');
@@ -43,6 +62,14 @@ class Advanced_Checkout_Ajax
         wp_die();
     }
 
+    /**
+     * Filter available payment gateways
+     * 
+     * Can be used to prioritize or hide specific gateways for the custom checkout.
+     * 
+     * @param array $available_gateways
+     * @return array
+     */
     public function filter_gateways($available_gateways)
     {
         if (is_admin()) {
